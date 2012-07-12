@@ -16,7 +16,7 @@ import os.path
 from flask import Flask, url_for
 from flaskext.uploads import (UploadSet, UploadConfiguration, extension,
     TestingFileStorage, patch_request_class, configure_uploads, addslash,
-    ALL, AllExcept)
+    ALL, AllExcept, UploadsManager)
 
 
 class TestMiscellaneous(object):
@@ -135,6 +135,21 @@ class TestConfiguration(object):
         fconf, pconf = setconfig['files'], setconfig['photos']
         assert fconf == Config('/home/me/webapps/thisapp/files', None)
         assert pconf == Config('/mnt/photos', 'http://localhost:6002/')
+
+
+class TestConfigurationWithManger(TestConfiguration):
+    def setup(self):
+        super(TestConfigurationWithManger, self).setup()
+        self.uploads_manager = UploadsManager(self.app)
+
+    def configure(self, *sets, **options):
+        self.app.config.update(options)
+        self.uploads_manager.register(sets)
+        return self.app.upload_set_config
+
+    def teardown(self):
+        del self.uploads_manager
+        super(TestConfigurationWithManger, self).teardown()
 
 
 class TestPreconditions(object):

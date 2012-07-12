@@ -203,6 +203,36 @@ def configure_uploads(app, upload_sets):
             app.register_module(uploads_mod)
 
 
+class UploadsManager(object):
+    """ Simple manager for fast sets registration
+
+        Usage:
+
+            # flaskapp.py
+            from flask import Flask
+            from flask.ext.uploads import UploadsManager, UploadSet, IMAGES
+
+            app = Flask(__name__)
+
+            uploads = UploadsManager(app)
+
+            uploads.register(UploadSet('photos'))
+            sets = (
+                UploadSet('photos', IMAGES),
+                UploadSet('pdf', ('pdf',))
+            )
+            uploads.register(sets)
+    """
+    def __init__(self, app=None):
+        self.app = app
+
+    def init_app(self, app):
+        self.app = app
+
+    def register(self, upload_sets):
+        configure_uploads(self.app, upload_sets)
+
+
 class All(object):
     """
     This type can be used to allow all extensions. There is a predefined
